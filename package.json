@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "dotenv": "^8.2.0",
+    "http": "0.0.1-security",
     "mysql": "^2.18.1",
     "redis": "^3.0.2",
     "tdl": "^6.2.0",

@@ -2,6 +2,8 @@
 
 const { Client } = require('tdl');
 const { TDLib } = require('tdl-tdlib-ffi');
+const DB = require('./class/db');
+var http = require('http');
 require('dotenv').config();
 
 const ConfigsClass = require("./class/configs");
@@ -20,6 +22,38 @@ async function main() {
   if(!configs.enable_main_bot){
     process.exit();
   }
+  const db = new DB();
+  await db.connect();
+
+  http.createServer(function (req, res) {
+    let lastId = parseInt(req.url.replace('/', ''), 10);
+    if(!isNaN(lastId)) {
+      db.load(lastId).then(result => {
+        result = {
+          status: "success",
+          code: 200,
+          message: "ok",
+          data: result
+        };
+        // console.log(JSON.stringify(result));
+        res.write(JSON.stringify(result));
+        res.end(); 
+      }).catch(e => {
+        e = {
+          status: "error",
+          code: 500,
+          message: "notok",
+          data: e
+        };
+        res.write(JSON.stringify(e));
+        res.end(); 
+      })
+    }else {
+      res.write('I am alive!');
+      res.end();
+    }
+    
+  }).listen(process.env.PORT); 
 
   client
   .on('update', update => {
@@ -33,7 +67,9 @@ async function main() {
         let price;
         let sl;
         let tp = [];
+        let type;
         if(actionIndex==0) {
+          type = 'red_emojy'
           currency = firstStatment[1].toUpperCase();
           price = firstStatment[3].substring(0, firstStatment[3].length-1);
           for(let i = 1;i < msg.length;i++) {
@@ -44,6 +80,7 @@ async function main() {
             }
           }
         } else  {
+          type ='no_emojy';
           currency = firstStatment[0].toUpperCase();
           price = firstStatment[2];
           for(let i = 1;i < msg.length;i++) {
@@ -54,11 +91,22 @@ async function main() {
             }
           }
         }
+        console.log('Type :', type);
         console.log('Action :', action);
         console.log('Currency :', currency);
         console.log('Price :', price);
         console.log('sl :', sl);
         console.log('tp :', tp);
+        db.add({
+          type,
+          action,
+          currency,
+          price,
+          sl,
+          tp
+        }).then().catch(e => {
+          console.log('add error', e);
+        });
       }
     }
   })
@@ -72,3 +120,4 @@ async function main() {
 }
 
 main();
+
