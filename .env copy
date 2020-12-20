@@ -1,0 +1,15 @@
+# TDLIB
+TDLIB_PATH='/home/jahangold/td/tdlib/lib/libtdjson.so'
+API_ID=1732823
+API_HASH='4aedc777ddbc97e75ef7d76ed0279439'
+DATABASE_DIRECTORY='_td_database'
+FILE_DIRECTORY='_td_files'
+
+# DB
+DB_HOST=localhost
+DB_NAME=behdani
+DB_USER=root
+DB_PASS=Hscomp2002@
+
+# HTTP
+PORT=8000
